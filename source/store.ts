@@ -22,7 +22,7 @@ const DEFAULT_CONFIGURATION: GameConfiguration = {
     ],
   ],
   entityBodies: [
-    [0, 100],
+    [0, 500],
   ],
 };
 

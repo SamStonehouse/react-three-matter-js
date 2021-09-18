@@ -5,6 +5,7 @@ import { Bodies, Engine, Composite } from 'matter-js';
 import World from './world';
 import { useMutable } from './mutable-state';
 import { GameConfiguration, useStore } from './store';
+import EntityBodies from './entity-bodies';
 
 
 function createEntityBody([x, y], width, height) {
@@ -45,7 +46,10 @@ const Game = (): React.ReactElement => {
   }, 1);
 
   return (
-    <World />
+    <>
+      <World />
+      <EntityBodies />
+    </>
   );
 };
 
