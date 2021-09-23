@@ -52,6 +52,13 @@ export function addEntity<T extends ComponentsLists, U extends ComponentData>(ec
   return entityId;
 }
 
+export function createComponentList<T extends ComponentData>(): ComponentList<T> {
+  return {
+    components: [],
+    componentIndex: {},
+  };
+}
+
 export function addTask<T extends ComponentsLists, U>(ecs: ECS<T, U>, name: string, run: (ecs: ECS<T, U>) => void, priority: number = 0): void {
   ecs.tasks.push({
     name,
@@ -59,19 +66,20 @@ export function addTask<T extends ComponentsLists, U>(ecs: ECS<T, U>, name: stri
     priority,
   });
 
+  // Order tasks by priority
   ecs.tasks.sort((a, b) => {
     return b.priority - a.priority;
   });
 }
 
-// TODO
-function createECS<T extends ComponentsLists, U>(initialState: U): ECS<T, U> {
-  const ecs = {};
-
+export function createECS<T extends ComponentsLists, U>(initialState: U, componentLists: T): ECS<T, U> {
   return {
+    entityId: 0,
+    componentId: 0,
     entities: [],
-    componentLists: {},
+    componentLists,
     tasks: [],
     state: initialState,
   };
 }
+
