@@ -58,6 +58,7 @@ module.exports = {
         'no-empty-pattern': 'off',
         "no-multiple-empty-lines": "off",
         "no-nested-ternary": "off",
+        "no-param-reassign": "off",
         "no-plusplus": "off",
         "no-shadow": "off",
         "no-underscore-dangle": "off",

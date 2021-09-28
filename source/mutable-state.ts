@@ -1,9 +1,12 @@
 import { Engine, Body } from 'matter-js';
+import { PhysicsECS } from './ecs/phsyics-ecs';
 import { createMutable } from './utils/mutable-state-provider';
 
 interface MutableState {
   engine: Engine;
   entityBodies: Body[];
+  staticBodies: Body[];
+  ecs: PhysicsECS | null,
 }
 
 const {
@@ -13,6 +16,8 @@ const {
 } = createMutable<MutableState>({
   engine: Engine.create(),
   entityBodies: [],
+  staticBodies: [],
+  ecs: null,
 });
 
 export {

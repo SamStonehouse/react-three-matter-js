@@ -2,12 +2,14 @@ import create from 'zustand';
 import shallow from 'zustand/shallow';
 
 import type { GetState, SetState, StateSelector } from 'zustand';
+import { PhysicsECSEntityEmplate } from './ecs/phsyics-ecs';
 
 export type GameConfiguration = {
   width: number,
   height: number,
   staticBodies: [number, number][][],
   entityBodies: [number, number][],
+  entities: PhysicsECSEntityEmplate[]
 };
 
 const DEFAULT_CONFIGURATION: GameConfiguration = {
@@ -22,7 +24,32 @@ const DEFAULT_CONFIGURATION: GameConfiguration = {
     ],
   ],
   entityBodies: [
-    [0, 500],
+    [0, 100],
+    [-2, 140],
+    [-5, 180],
+    [-5, 180],
+    [-5, 180],
+    [-5, 180],
+    [-5, 180],
+    [-5, 180],
+  ],
+  entities: [
+    {
+      name: 'A',
+      transform: {
+        position: [0, 0, 0],
+        angle: 0,
+      },
+      rigidBody: {
+        points: [
+          [5, 5],
+          [-5, 5],
+          [-5, -5],
+          [5, -5],
+        ],
+        isStatic: false,
+      },
+    },
   ],
 };
 

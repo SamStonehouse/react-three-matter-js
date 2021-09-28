@@ -10,7 +10,7 @@ import styles from './app.scss';
 const App = (): React.ReactElement => (
   <Canvas className={styles.threeCanvas}>
     <MutableProvider>
-      <OrthographicCamera zoom={1} position={[0, 0, 10]} makeDefault />
+      <OrthographicCamera zoom={1} position={[0, 0, 100]} makeDefault />
       <Game />
     </MutableProvider>
   </Canvas>
