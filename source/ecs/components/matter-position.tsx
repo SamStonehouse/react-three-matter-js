@@ -1,6 +1,6 @@
 import { useFrame } from '@react-three/fiber';
 import { Body } from 'matter-js';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { Mesh } from 'three';
 
 const POINT_WIDTH = 2;

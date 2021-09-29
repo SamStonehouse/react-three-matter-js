@@ -2,14 +2,14 @@ import create from 'zustand';
 import shallow from 'zustand/shallow';
 
 import type { GetState, SetState, StateSelector } from 'zustand';
-import { PhysicsECSEntityEmplate } from './ecs/phsyics-ecs';
+import { PhysicsECSEntityData } from './ecs/physics-ecs';
 
 export type GameConfiguration = {
   width: number,
   height: number,
   staticBodies: [number, number][][],
   entityBodies: [number, number][],
-  entities: PhysicsECSEntityEmplate[]
+  entities: PhysicsECSEntityData[]
 };
 
 const DEFAULT_CONFIGURATION: GameConfiguration = {

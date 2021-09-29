@@ -1,10 +1,10 @@
 import { useFrame } from '@react-three/fiber';
-import { Bounds } from 'matter-js';
+import { Body } from 'matter-js';
 import React, { useEffect, useRef, useState } from 'react';
 import { Vector3 } from 'three';
 
 interface IMatterBoundsProps {
-  bounds: Bounds
+  body: Body,
 }
 
 const pointsFromBounds = ([minX, maxX, minY, maxY]) => {
@@ -17,29 +17,27 @@ const pointsFromBounds = ([minX, maxX, minY, maxY]) => {
   ];
 };
 
-const MatterBounds = ({ bounds }: IMatterBoundsProps): React.ReactElement | null => {
+const MatterBounds = ({ body }: IMatterBoundsProps): React.ReactElement | null => {
   const lineRef = useRef<THREE.Line>(null!);
   const geometryRef = useRef<THREE.BufferGeometry>(null!);
   // const { mutable } = useMutable();
 
-  const [[minX, maxX, minY, maxY], setMinMax] = useState([bounds.min.x, bounds.max.x, bounds.min.y, bounds.max.y]);
+  const [[minX, maxX, minY, maxY], setMinMax] = useState([body.bounds.min.x, body.bounds.max.x, body.bounds.min.y, body.bounds.max.y]);
 
   useFrame(() => {
     if (
-      bounds.min.x !== minX
-      || bounds.max.x !== maxX
-      || bounds.min.y !== minY
-      || bounds.max.y !== maxY
+      body.bounds.min.x !== minX
+      || body.bounds.max.x !== maxX
+      || body.bounds.min.y !== minY
+      || body.bounds.max.y !== maxY
     ) {
-      setMinMax([bounds.min.x, bounds.max.x, bounds.min.y, bounds.max.y]);
+      setMinMax([body.bounds.min.x, body.bounds.max.x, body.bounds.min.y, body.bounds.max.y]);
     }
   });
 
   useEffect(() => {
     if (geometryRef !== null) {
       geometryRef.current.setFromPoints(pointsFromBounds([minX, maxX, minY, maxY]));
-    } else {
-      console.log('Ref = null');
     }
   }, [geometryRef, minX, maxX, minY, maxY]);
 

@@ -85,7 +85,9 @@ const updatePhysicsFromTransform = (ecs: PhysicsECS): void => {
 };
 
 /**
- * Upate physics engine and then update transforms of all entites which have physics
+ * Update physics engine and then update transforms of all entites which have physics
+ *
+ * @param ecs PhysicsECS
  */
 const processInputs = (ecs: PhysicsECS): void => {
   const { forward, backward, left, right } = ecs.state.inputs;
@@ -118,6 +120,12 @@ const processInputs = (ecs: PhysicsECS): void => {
   }
 };
 
+/**
+ * Creates a new PhysicsECS with the given Matter-JS engine
+ *
+ * @param engine Matter-JS engine
+ * @returns the created PhysicsECS
+ */
 export function createPhysicsECS(engine: Engine): PhysicsECS {
   const physicsECS = createECS<PhysicsECSComponents, PhysicsECSState, PhysicsECSFrameOpts>(
     {
@@ -142,7 +150,8 @@ export function createPhysicsECS(engine: Engine): PhysicsECS {
   return physicsECS;
 }
 
-export type PhysicsECSEntityEmplate = {
+
+export type PhysicsECSEntityData = {
   name: string,
   transform: {
     position: [number, number, number];
@@ -154,8 +163,14 @@ export type PhysicsECSEntityEmplate = {
   },
 }
 
-export function createEntityFromTemplate(template: PhysicsECSEntityEmplate): [string, Array<ComponentData>] {
-  const { position, angle } = template.transform;
+/**
+ * Returns a tuple with an entity name and an array of ComponentData
+ *
+ * @param entityData
+ * @returns [objectName, entityComponents[]]
+ */
+export function createEntityFromObject(entityData: PhysicsECSEntityData): [string, Array<ComponentData>] {
+  const { position, angle } = entityData.transform;
 
   const components: Array<TransformComponent | RigidBodyComponent> = [
     {
@@ -165,8 +180,8 @@ export function createEntityFromTemplate(template: PhysicsECSEntityEmplate): [st
     },
   ];
 
-  if (template.rigidBody) {
-    const { isStatic, points } = template.rigidBody;
+  if (entityData.rigidBody) {
+    const { isStatic, points } = entityData.rigidBody;
     components.push({
       type: PhysicsECSComponentTypes.rigidBody,
       body: Bodies.fromVertices(
@@ -179,7 +194,7 @@ export function createEntityFromTemplate(template: PhysicsECSEntityEmplate): [st
   }
 
   return [
-    template.name,
+    entityData.name,
     components,
   ];
 }

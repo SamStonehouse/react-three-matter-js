@@ -2,7 +2,7 @@ import { useFrame } from '@react-three/fiber';
 import React, { useRef, useState } from 'react';
 
 import { useMutable } from '@/mutable-state';
-import { Entity, hasNewEntites } from './simple-ecs';
+import { Entity, hasNewEntites } from '../simple-ecs';
 import PhysicsECSEntity from './physics-ecs-entity';
 
 interface IPhysicsECSEntitiesProps {

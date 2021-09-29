@@ -1,5 +1,5 @@
 import { Engine, Body } from 'matter-js';
-import { PhysicsECS } from './ecs/phsyics-ecs';
+import { PhysicsECS } from './ecs/physics-ecs';
 import { createMutable } from './utils/mutable-state-provider';
 
 interface MutableState {
