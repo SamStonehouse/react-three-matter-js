@@ -50,6 +50,22 @@ const DEFAULT_CONFIGURATION: GameConfiguration = {
         isStatic: false,
       },
     },
+    {
+      name: 'B',
+      transform: {
+        position: [0, -450, 0],
+        angle: 0,
+      },
+      rigidBody: {
+        points: [
+          [200, 0],
+          [-200, 0],
+          [-200, -20],
+          [200, -20],
+        ],
+        isStatic: true,
+      },
+    },
   ],
 };
 

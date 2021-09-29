@@ -1,7 +1,7 @@
 import { Bodies, Body, Engine } from 'matter-js';
 import { addTask, ComponentData, ComponentList, ComponentsLists, createComponentList, createECS, ECS, Entity } from './simple-ecs';
 
-export type PhysicsECS = ECS<PhysicsECSComponents, PhysicsECSState>;
+export type PhysicsECS = ECS<PhysicsECSComponents, PhysicsECSState, PhysicsECSFrameOpts>;
 
 export enum PhysicsECSComponentTypes {
   transform = 'transform',
@@ -14,9 +14,13 @@ export type TransformComponent = {
   angle: number,
 }
 
-export type RigidBodyComponent ={
+export type RigidBodyComponent = {
   type: PhysicsECSComponentTypes.rigidBody,
   body: Body,
+}
+
+export type PhysicsECSFrameOpts = {
+  delta: number,
 }
 
 // export interface UserControlledComponent {
@@ -40,7 +44,7 @@ type PhysicsECSState = {
 }
 
 /**
- * Upate physics engine and then update transforms of all entites which have physics
+ * Upate physics engine and then update transforms of all entites which have physics, this should be done after the physics engine updates
  */
 const updateTransformFromPhysics = (ecs: PhysicsECS): void => {
   const rigidBodyComponents = ecs.componentLists.rigidBody.components;
@@ -53,6 +57,29 @@ const updateTransformFromPhysics = (ecs: PhysicsECS): void => {
       data.position[0] = rbc.data.body.position.x;
       data.position[1] = rbc.data.body.position.y;
       data.angle = rbc.data.body.angle;
+    }
+  }
+};
+
+const updateEngine = (ecs: PhysicsECS, { delta }: PhysicsECSFrameOpts): void => {
+  Engine.update(ecs.state.engine, delta * 1000);
+};
+
+/**
+ * Upate physics engine positions and rotation from transforms, this should be done before the physics engine updates
+ */
+const updatePhysicsFromTransform = (ecs: PhysicsECS): void => {
+  const rigidBodyComponents = ecs.componentLists.rigidBody.components;
+
+  for (let i = 0; i < rigidBodyComponents.length; i++) {
+    const rbc = rigidBodyComponents[i];
+    const transformIndex = ecs.componentLists.transform.entityIndex[rbc.entityId];
+    if (transformIndex !== undefined) {
+      const { data } = ecs.componentLists.transform.components[transformIndex];
+      const [x, y] = data.position;
+      rbc.data.body.position.x = x;
+      rbc.data.body.position.y = y;
+      rbc.data.body.angle = data.angle;
     }
   }
 };
@@ -92,7 +119,7 @@ const processInputs = (ecs: PhysicsECS): void => {
 };
 
 export function createPhysicsECS(engine: Engine): PhysicsECS {
-  const physicsECS = createECS<PhysicsECSComponents, PhysicsECSState>(
+  const physicsECS = createECS<PhysicsECSComponents, PhysicsECSState, PhysicsECSFrameOpts>(
     {
       engine,
       inputs: {
@@ -108,8 +135,9 @@ export function createPhysicsECS(engine: Engine): PhysicsECS {
     },
   );
 
-  addTask<PhysicsECSComponents, PhysicsECSState>(physicsECS, 'Transform Update', updateTransformFromPhysics, 2);
-  // addTask<PhysicsECSComponents, PhysicsECSState>(physicsECS, 'Process Inputs', processInputs, 1);
+  addTask<PhysicsECSComponents, PhysicsECSState, PhysicsECSFrameOpts>(physicsECS, 'Physics update from transform', updatePhysicsFromTransform, 2);
+  addTask<PhysicsECSComponents, PhysicsECSState, PhysicsECSFrameOpts>(physicsECS, 'Phyics update', updateEngine, 2);
+  addTask<PhysicsECSComponents, PhysicsECSState, PhysicsECSFrameOpts>(physicsECS, 'Transform update from physics', updateTransformFromPhysics, 2);
 
   return physicsECS;
 }

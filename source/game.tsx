@@ -36,6 +36,7 @@ const Game = (): React.ReactElement => {
         }
       }
     });
+    mutable.engine.gravity.y = -1;
   });
 
   // useEffect(() => {
@@ -61,9 +62,8 @@ const Game = (): React.ReactElement => {
   useFrame(({ gl, scene, camera }) => gl.render(scene, camera), 1000);
 
   useFrame((state, delta) => {
-    Engine.update(mutable.engine, delta * 1000);
     if (mutable.ecs !== null) {
-      runTasks(mutable.ecs);
+      runTasks(mutable.ecs, { delta });
     }
   }, 1);
 

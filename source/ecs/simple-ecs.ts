@@ -28,28 +28,28 @@ export interface ComponentList<T extends ComponentData> {
 
 export type ComponentsLists = Record<string, ComponentList<ComponentData>>;
 
-export type Task<T extends ComponentsLists, U> = {
+export type Task<T extends ComponentsLists, U, V> = {
   name: string,
-  run(ecs: ECS<T, U>): void,
+  run(ecs: ECS<T, U, V>, V): void,
   priority: number,
 }
 
-export type ECS<T extends ComponentsLists, U> = {
+export type ECS<T extends ComponentsLists, U, V> = {
   entityId: number,
   entities: Entity[],
   entitiesById: Record<string, number>,
   componentLists: T,
-  tasks: Task<T, U>[],
+  tasks: Task<T, U, V>[],
   state: U,
 }
 
-export function addComponent<T extends ComponentsLists, U extends ComponentData>(ecs: ECS<T, any>, entityId: number, data: U): void {
+export function addComponent<T extends ComponentsLists, U extends ComponentData>(ecs: ECS<T, any, any>, entityId: number, data: U): void {
   console.log('Adding component');
   ecs.componentLists[data.type].components.push({ entityId, data });
   ecs.componentLists[data.type].entityIndex[entityId] = ecs.componentLists[data.type].components.length - 1;
 }
 
-export function addEntity<T extends ComponentsLists>(ecs: ECS<T, any>, name: string, componentData: ComponentData[]): number {
+export function addEntity<T extends ComponentsLists>(ecs: ECS<T, any, any>, name: string, componentData: ComponentData[]): number {
   console.log('Adding entity');
   const entityId = ecs.entityId++;
 
@@ -86,7 +86,7 @@ export function removeComponentByEntityId(componentList: ComponentList<Component
   return true;
 }
 
-export function removeEntity<T extends ComponentsLists>(ecs: ECS<T, any>, entityId: number): boolean {
+export function removeEntity<T extends ComponentsLists>(ecs: ECS<T, any, any>, entityId: number): boolean {
   const index = ecs.entitiesById[entityId];
 
   if (index === undefined) {
@@ -121,7 +121,7 @@ export function createComponentList<T extends ComponentData>(): ComponentList<T>
   };
 }
 
-export function addTask<T extends ComponentsLists, U>(ecs: ECS<T, U>, name: string, run: (ecs: ECS<T, U>) => void, priority: number = 0): void {
+export function addTask<T extends ComponentsLists, U, V>(ecs: ECS<T, U, V>, name: string, run: (ecs: ECS<T, U, V>, V) => void, priority: number = 0): void {
   ecs.tasks.push({
     name,
     run,
@@ -134,14 +134,14 @@ export function addTask<T extends ComponentsLists, U>(ecs: ECS<T, U>, name: stri
   });
 }
 
-export function runTasks<T extends ComponentsLists, U>(ecs: ECS<T, U>): void {
+export function runTasks<T extends ComponentsLists, U, V>(ecs: ECS<T, U, V>, frameOpts: V): void {
   for (let i = 0; i < ecs.tasks.length; i++) {
     console.log('Running task ', ecs.tasks[i].name);
-    ecs.tasks[i].run(ecs);
+    ecs.tasks[i].run(ecs, frameOpts);
   }
 }
 
-export function createECS<T extends ComponentsLists, U>(initialState: U, componentLists: T): ECS<T, U> {
+export function createECS<T extends ComponentsLists, U, V>(initialState: U, componentLists: T): ECS<T, U, V> {
   return {
     entityId: 0,
     entities: [],
