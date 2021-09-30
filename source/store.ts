@@ -49,6 +49,7 @@ const DEFAULT_CONFIGURATION: GameConfiguration = {
         ],
         isStatic: false,
       },
+      userControlled: true,
     },
     {
       name: 'B',

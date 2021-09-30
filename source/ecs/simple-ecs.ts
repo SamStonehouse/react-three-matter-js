@@ -136,7 +136,7 @@ export function addTask<T extends ComponentsLists, U, V>(ecs: ECS<T, U, V>, name
 
 export function runTasks<T extends ComponentsLists, U, V>(ecs: ECS<T, U, V>, frameOpts: V): void {
   for (let i = 0; i < ecs.tasks.length; i++) {
-    console.log('Running task ', ecs.tasks[i].name);
+    // console.log('Running task ', ecs.tasks[i].name);
     ecs.tasks[i].run(ecs, frameOpts);
   }
 }

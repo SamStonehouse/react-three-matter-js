@@ -19,16 +19,18 @@ export type RigidBodyComponent = {
   body: Body,
 }
 
+export type UserControlledComponent = {
+  type: PhysicsECSComponentTypes.userControlled,
+}
+
 export type PhysicsECSFrameOpts = {
   delta: number,
 }
 
-// export interface UserControlledComponent {
-//   type: PhysicsECSComponentTypes.userControlled,
-// }
 export interface PhysicsECSComponents extends ComponentsLists {
   [PhysicsECSComponentTypes.transform]: ComponentList<TransformComponent>;
   [PhysicsECSComponentTypes.rigidBody]: ComponentList<RigidBodyComponent>;
+  [PhysicsECSComponentTypes.userControlled]: ComponentList<UserControlledComponent>;
 }
 
 type ECSInputs = {
@@ -44,7 +46,7 @@ type PhysicsECSState = {
 }
 
 /**
- * Upate physics engine and then update transforms of all entites which have physics, this should be done after the physics engine updates
+ * Update physics engine and then update transforms of all entites which have physics, this should be done after the physics engine updates
  */
 const updateTransformFromPhysics = (ecs: PhysicsECS): void => {
   const rigidBodyComponents = ecs.componentLists.rigidBody.components;
@@ -66,7 +68,7 @@ const updateEngine = (ecs: PhysicsECS, { delta }: PhysicsECSFrameOpts): void => 
 };
 
 /**
- * Upate physics engine positions and rotation from transforms, this should be done before the physics engine updates
+ * Update physics engine positions and rotation from transforms, this should be done before the physics engine updates
  */
 const updatePhysicsFromTransform = (ecs: PhysicsECS): void => {
   const rigidBodyComponents = ecs.componentLists.rigidBody.components;
@@ -102,19 +104,23 @@ const processInputs = (ecs: PhysicsECS): void => {
       const rigidBodyComponent = ecs.componentLists.rigidBody.components[rigidBodyIndex];
 
       if (forward) {
-        Body.applyForce(rigidBodyComponent.data.body, { x: 0, y: 0 }, { x: 1, y: 0 });
+        console.log('F');
+        Body.applyForce(rigidBodyComponent.data.body, { x: 0, y: 0 }, { x: 0.0001, y: 0 });
       }
 
       if (backward) {
-        Body.applyForce(rigidBodyComponent.data.body, { x: 0, y: 0 }, { x: -1, y: 0 });
+        console.log('B');
+        Body.applyForce(rigidBodyComponent.data.body, { x: 0, y: 0 }, { x: -0.0001, y: 0 });
       }
 
       if (left) {
+        console.log('R');
         Body.rotate(rigidBodyComponent.data.body, 0.1);
       }
 
       if (right) {
-        Body.rotate(rigidBodyComponent.data.body, 0.1);
+        console.log('S');
+        Body.rotate(rigidBodyComponent.data.body, -0.1);
       }
     }
   }
@@ -140,11 +146,13 @@ export function createPhysicsECS(engine: Engine): PhysicsECS {
     {
       [PhysicsECSComponentTypes.transform]: createComponentList<TransformComponent>(),
       [PhysicsECSComponentTypes.rigidBody]: createComponentList<RigidBodyComponent>(),
+      [PhysicsECSComponentTypes.userControlled]: createComponentList<UserControlledComponent>(),
     },
   );
 
   addTask<PhysicsECSComponents, PhysicsECSState, PhysicsECSFrameOpts>(physicsECS, 'Physics update from transform', updatePhysicsFromTransform, 2);
-  addTask<PhysicsECSComponents, PhysicsECSState, PhysicsECSFrameOpts>(physicsECS, 'Phyics update', updateEngine, 2);
+  addTask<PhysicsECSComponents, PhysicsECSState, PhysicsECSFrameOpts>(physicsECS, 'Update from inputs', processInputs, 2);
+  addTask<PhysicsECSComponents, PhysicsECSState, PhysicsECSFrameOpts>(physicsECS, 'Phyics engine update', updateEngine, 2);
   addTask<PhysicsECSComponents, PhysicsECSState, PhysicsECSFrameOpts>(physicsECS, 'Transform update from physics', updateTransformFromPhysics, 2);
 
   return physicsECS;
@@ -161,6 +169,7 @@ export type PhysicsECSEntityData = {
     points: [number, number][],
     isStatic: boolean,
   },
+  userControlled?: boolean,
 }
 
 /**
@@ -172,7 +181,7 @@ export type PhysicsECSEntityData = {
 export function createEntityFromObject(entityData: PhysicsECSEntityData): [string, Array<ComponentData>] {
   const { position, angle } = entityData.transform;
 
-  const components: Array<TransformComponent | RigidBodyComponent> = [
+  const components: Array<TransformComponent | RigidBodyComponent | UserControlledComponent> = [
     {
       type: PhysicsECSComponentTypes.transform,
       position: [position[0], position[1], position[2]],
@@ -190,6 +199,12 @@ export function createEntityFromObject(entityData: PhysicsECSEntityData): [strin
         [points.map((vec) => ({ x: vec[0], y: vec[1] }))],
         { angle, isStatic },
       ),
+    });
+  }
+
+  if (entityData.userControlled) {
+    components.push({
+      type: PhysicsECSComponentTypes.userControlled,
     });
   }
 

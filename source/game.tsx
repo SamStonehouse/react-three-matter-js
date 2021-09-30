@@ -7,6 +7,7 @@ import { useMutable } from './mutable-state';
 import { GameConfiguration, useStore } from './store';
 import { createEntityFromObject, createPhysicsECS } from './ecs/physics-ecs';
 import { addEntity, runTasks } from './ecs/simple-ecs';
+import { Keyboard } from './keyboard';
 
 
 const Game = (): React.ReactElement => {
@@ -29,7 +30,7 @@ const Game = (): React.ReactElement => {
         }
       }
     });
-    mutable.engine.gravity.y = -1;
+    mutable.engine.gravity.y = 0;
   });
 
   useFrame(({ gl, scene, camera }) => gl.render(scene, camera), 1000);
@@ -43,6 +44,7 @@ const Game = (): React.ReactElement => {
   return (
     <>
       <World />
+      <Keyboard />
     </>
   );
 };
