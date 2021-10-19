@@ -7,32 +7,12 @@ import { PhysicsECSEntityData } from './ecs/physics-ecs';
 export type GameConfiguration = {
   width: number,
   height: number,
-  staticBodies: [number, number][][],
-  entityBodies: [number, number][],
   entities: PhysicsECSEntityData[]
 };
 
 const DEFAULT_CONFIGURATION: GameConfiguration = {
   width: 400,
   height: 400,
-  staticBodies: [
-    [
-      [200, 0],
-      [-200, 0],
-      [-200, -20],
-      [200, -20],
-    ],
-  ],
-  entityBodies: [
-    [0, 100],
-    [-2, 140],
-    [-5, 180],
-    [-5, 180],
-    [-5, 180],
-    [-5, 180],
-    [-5, 180],
-    [-5, 180],
-  ],
   entities: [
     {
       name: 'A',
@@ -50,6 +30,25 @@ const DEFAULT_CONFIGURATION: GameConfiguration = {
         isStatic: false,
       },
       userControlled: true,
+      sprite: {
+        file: 'test',
+      },
+    },
+    {
+      name: 'C',
+      transform: {
+        position: [20, 0, 0],
+        angle: 0,
+      },
+      rigidBody: {
+        points: [
+          [5, 5],
+          [-5, 5],
+          [-5, -5],
+          [5, -5],
+        ],
+        isStatic: false,
+      },
     },
     {
       name: 'B',

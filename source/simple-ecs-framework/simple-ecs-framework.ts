@@ -1,10 +1,12 @@
 /**
- * A Simple Entity-Component System, designed to encapsulate state and logic
- * for a dynamic system by storing common state as components, and linking them together via an 'entity'.
+ * A Simple Entity-Component System framework, designed to encapsulate state and logic
+ * of a dynamic system by storing common state structures as components, and linking them together via an 'entity'.
  *
- * SimpleECS adds additional functionality in the form of
+ * The SimpleECSFramework Contains
+ * - Entities - an entity is just an id (and a name to help with logging/debugging)
+ * - Components - state containers for a given type of data, each component has an entityId, type and data at minimum
  * - State, to store global items, not specific to a given entity
- * - Tasks, run each frame, they are the logic holders which update components with new values
+ * - Tasks, run each frame and contain the logic for updating components
  */
 export type Entity = {
   id: number,
@@ -14,6 +16,7 @@ export type Entity = {
 
 export interface ComponentData {
   type: string,
+  [others: string]: any;
 }
 
 export interface Component<T extends ComponentData> {
@@ -28,9 +31,11 @@ export interface ComponentList<T extends ComponentData> {
 
 export type ComponentsLists = Record<string, ComponentList<ComponentData>>;
 
+export type TaskProcess<T extends ComponentsLists, U, V> = (ecs: ECS<T, U, V>, V) => void;
+
 export type Task<T extends ComponentsLists, U, V> = {
   name: string,
-  run(ecs: ECS<T, U, V>, V): void,
+  run: TaskProcess<T, U, V>,
   priority: number,
 }
 
@@ -43,14 +48,23 @@ export type ECS<T extends ComponentsLists, U, V> = {
   state: U,
 }
 
+export function createECS<T extends ComponentsLists, U, V>(initialState: U, componentLists: T): ECS<T, U, V> {
+  return {
+    entityId: 0,
+    entities: [],
+    entitiesById: {},
+    componentLists,
+    tasks: [],
+    state: initialState,
+  };
+}
+
 export function addComponent<T extends ComponentsLists, U extends ComponentData>(ecs: ECS<T, any, any>, entityId: number, data: U): void {
-  console.log('Adding component');
   ecs.componentLists[data.type].components.push({ entityId, data });
   ecs.componentLists[data.type].entityIndex[entityId] = ecs.componentLists[data.type].components.length - 1;
 }
 
 export function addEntity<T extends ComponentsLists>(ecs: ECS<T, any, any>, name: string, componentData: ComponentData[]): number {
-  console.log('Adding entity');
   const entityId = ecs.entityId++;
 
   const componentTypes = componentData.reduce<string[]>((acc, val) => {
@@ -68,7 +82,9 @@ export function addEntity<T extends ComponentsLists>(ecs: ECS<T, any, any>, name
   return entityId;
 }
 
-export function removeComponentByEntityId(componentList: ComponentList<ComponentData>, entityId: number): boolean {
+export function removeComponent<T extends ComponentsLists>(ecs: ECS<T, any, any>, componentType: string, entityId: number): boolean {
+  const componentList = ecs.componentLists[componentType];
+
   const index = componentList.entityIndex[entityId];
   if (index === undefined) {
     // No such component with this ID in this list
@@ -100,7 +116,7 @@ export function removeEntity<T extends ComponentsLists>(ecs: ECS<T, any, any>, e
   }
 
   for (let i = 0; i < entity.componentTypes.length; i++) {
-    removeComponentByEntityId(ecs.componentLists[entity.componentTypes[i]], entityId);
+    removeComponent(ecs, entity.componentTypes[i], entityId);
   }
 
   ecs.entities.splice(index, 1);
@@ -141,17 +157,6 @@ export function runTasks<T extends ComponentsLists, U, V>(ecs: ECS<T, U, V>, fra
   }
 }
 
-export function createECS<T extends ComponentsLists, U, V>(initialState: U, componentLists: T): ECS<T, U, V> {
-  return {
-    entityId: 0,
-    entities: [],
-    entitiesById: {},
-    componentLists,
-    tasks: [],
-    state: initialState,
-  };
-}
-
 function arraysMatch<T>(a: T[], b: T[]): boolean {
   if (a.length !== b.length) {
     return false;
@@ -175,3 +180,63 @@ export function entitiesMatch(a: Entity, b: Entity): boolean {
 export function hasNewEntites(entityList: Entity[], length: number, lastEntityId: number | null): boolean {
   return entityList.length !== length || (entityList.length > 0 && entityList[entityList.length - 1].id !== lastEntityId);
 }
+
+export function getComponent<T extends ComponentData>(ecs: ECS<any, any, any>, entityId: number, componentType: string): null | T {
+  if (!ecs.componentLists[componentType]) {
+    return null;
+  }
+
+  const componentIndex = ecs.componentLists[componentType].entityIndex[entityId];
+  if (componentIndex === undefined) {
+    return null;
+  }
+
+  if (!ecs.componentLists[componentType].components[componentIndex]) {
+    return null;
+  }
+
+  return ecs.componentLists[componentType].components[componentIndex].data;
+}
+
+interface Component2 {
+  entityId: number,
+  type: string,
+}
+
+interface ComponentList2<T extends Component2> {
+  components: T[],
+  entityIndex: Record<number, number>, // EntityID -> Component Index[]
+}
+
+type ComponentsLists2 = Record<string, ComponentList2<Component2>>;
+
+type TaskProcess2<T extends ComponentsLists2> = (ecs: ECS2<T>) => void;
+
+type Task2<T extends ComponentsLists2> = {
+  name: string,
+  run: TaskProcess2<T>,
+  priority: number,
+}
+
+
+type ECS2<T extends ComponentsLists2> = {
+  getNextEntityId: () => number,
+  componentLists: T,
+  tasks: Task2<T>[],
+}
+
+type TransformComponent2 = {
+  type: 'transform',
+  position: [number, number, number];
+  angle: number,
+}
+
+interface MyECSComponents extends ComponentsLists2 {
+  ['transform']: TransformComponent2
+}
+
+const components: ComponentsLists2 = {
+  'transform': 
+}
+
+const ecs:

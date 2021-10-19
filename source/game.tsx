@@ -5,8 +5,8 @@ import { Composite } from 'matter-js';
 import World from './world';
 import { useMutable } from './mutable-state';
 import { GameConfiguration, useStore } from './store';
-import { createEntityFromObject, createPhysicsECS } from './ecs/physics-ecs';
-import { addEntity, runTasks } from './ecs/simple-ecs';
+import { createEntityFromData, createPhysicsECS } from './ecs/physics-ecs';
+import { addEntity, runTasks } from './simple-ecs-framework/simple-ecs-framework';
 import { Keyboard } from './keyboard';
 
 
@@ -16,7 +16,7 @@ const Game = (): React.ReactElement => {
 
   useEffect(() => {
     mutable.ecs = createPhysicsECS(mutable.engine);
-    configuration.entities.map(createEntityFromObject).forEach(([name, componentData]) => {
+    configuration.entities.map(createEntityFromData).forEach(([name, componentData]) => {
       if (mutable.ecs !== null) {
         const entityId = addEntity(mutable.ecs, name, componentData);
         const componentIndex = mutable.ecs.componentLists.rigidBody.entityIndex[entityId];
@@ -30,7 +30,7 @@ const Game = (): React.ReactElement => {
         }
       }
     });
-    mutable.engine.gravity.y = 0;
+    mutable.engine.gravity.y = -0.1;
   });
 
   useFrame(({ gl, scene, camera }) => gl.render(scene, camera), 1000);

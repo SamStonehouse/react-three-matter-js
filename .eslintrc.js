@@ -64,6 +64,7 @@ module.exports = {
         "no-underscore-dangle": "off",
         "no-use-before-define": "off",
         "object-curly-newline": "off",
+        "padded-blocks": "off",
       },
       settings: {
         "react": {
