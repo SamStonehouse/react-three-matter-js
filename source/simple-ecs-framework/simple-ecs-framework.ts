@@ -8,6 +8,13 @@
  * - State, to store global items, not specific to a given entity
  * - Tasks, run each frame and contain the logic for updating components
  */
+export type Scene = {
+  id: number,
+  name: string,
+  entities: [string, ComponentData[]]
+  loaded: boolean,
+}
+
 export type Entity = {
   id: number,
   name: string,
@@ -197,46 +204,3 @@ export function getComponent<T extends ComponentData>(ecs: ECS<any, any, any>, e
 
   return ecs.componentLists[componentType].components[componentIndex].data;
 }
-
-interface Component2 {
-  entityId: number,
-  type: string,
-}
-
-interface ComponentList2<T extends Component2> {
-  components: T[],
-  entityIndex: Record<number, number>, // EntityID -> Component Index[]
-}
-
-type ComponentsLists2 = Record<string, ComponentList2<Component2>>;
-
-type TaskProcess2<T extends ComponentsLists2> = (ecs: ECS2<T>) => void;
-
-type Task2<T extends ComponentsLists2> = {
-  name: string,
-  run: TaskProcess2<T>,
-  priority: number,
-}
-
-
-type ECS2<T extends ComponentsLists2> = {
-  getNextEntityId: () => number,
-  componentLists: T,
-  tasks: Task2<T>[],
-}
-
-type TransformComponent2 = {
-  type: 'transform',
-  position: [number, number, number];
-  angle: number,
-}
-
-interface MyECSComponents extends ComponentsLists2 {
-  ['transform']: TransformComponent2
-}
-
-const components: ComponentsLists2 = {
-  'transform': 
-}
-
-const ecs:
